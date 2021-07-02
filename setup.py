@@ -5,7 +5,7 @@ with open('README.md') as f:
 
 setup(
   name="inngest",
-  version="1.0.0",
+  version="0.0.1",
   description="Inngest Python SDK",
   author="Inngest, inc.",
   author_email="eng@inngest.com",
