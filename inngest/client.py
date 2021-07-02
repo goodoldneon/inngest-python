@@ -3,7 +3,7 @@ from datetime import datetime
 
 import requests
 
-from exceptions import InngestException
+from inngest.exceptions import InngestException
 
 
 class Event:
