@@ -1,13 +1,11 @@
 import json
 from datetime import datetime
-
 import requests
 
 from inngest.exceptions import InngestException
 
 
 class Event:
-
   def __init__(self, name=None, data=None, user=None, version=None, timestamp=None):
     self.name = name
     self.data = data
