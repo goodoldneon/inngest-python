@@ -3,7 +3,7 @@
 
 ## Usage
 
-```
+```python
 from inngest import InngestClient
 
 client = InngestClient(inngest_key="your-key-here")
