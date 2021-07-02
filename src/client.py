@@ -1,17 +1,19 @@
 import json
 import time
+from datetime import datetime
+
 import requests
 from exceptions import InngestException
 
 
 class Event:
 
-  def __init__(self, name=None, data=None, user=None, version=None, timestamp=time.time() * 1000):
+  def __init__(self, name=None, data=None, user=None, version=None, timestamp=None):
     self.name = name
     self.data = data
     self.user = user
     self.version = version
-    self.timestamp = timestamp
+    self.timestamp = timestamp if timestamp else int(datetime.now().timestamp() * 1000)
 
   def payload(self):
     data = {
