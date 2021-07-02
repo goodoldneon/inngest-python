@@ -1,6 +1,12 @@
 # inngest-python
 
 
+## Install
+
+```
+pip install inngest
+```
+
 ## Usage
 
 ```python
