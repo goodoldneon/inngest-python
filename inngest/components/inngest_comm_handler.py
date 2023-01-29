@@ -107,6 +107,7 @@ class InngestCommHandler:
             "User-Agent": f"inngest-js:v{version} ({framework_name})",
         }
 
+        self._is_prod = False
         self._signing_key = None
         self._transform_res = transform_res
 
@@ -173,7 +174,7 @@ class InngestCommHandler:
             self._upsert_signing_key_from_env(register_res.env)
 
             registration_res = self._register(
-                url="http://127.0.0.1:3006/api/inngest",
+                url="http://127.0.0.1:8080/api/inngest",
             )
             print(6)
             return ActionResponse(
@@ -194,8 +195,10 @@ class InngestCommHandler:
     ) -> RegistrationResult:
         body = self._register_body(url)
 
+        register_url = "http://127.0.0.1:8288/fn/register"
+
         req = Request(
-            self._inngest_register_url,
+            register_url,
             encode_json(body).encode("utf-8"),
             self._headers,
         )
@@ -203,6 +206,7 @@ class InngestCommHandler:
         try:
             with urlopen(req) as response:
                 body = json.loads(response.read())
+                pass
         except HTTPError as error:
             return RegistrationResult(
                 message=f"Failed to register; {error.read()}",

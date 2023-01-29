@@ -1,5 +1,6 @@
 from typing import Callable, Final, Optional
 
+from inngest.helpers.strings import slugify
 from inngest.types import FunctionConfig, FunctionConfigStep, FunctionConfigStepRuntime
 
 
@@ -41,7 +42,7 @@ class InngestFunction:
         )
 
     def _generate_id(self, prefix: Optional[str]) -> str:
-        return "foo"
+        return slugify("-".join([prefix or "", self._opts["name"]]))
 
     def id(self, prefix: Optional[str] = None) -> str:
         if not self._opts.get("id"):

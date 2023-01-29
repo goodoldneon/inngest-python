@@ -7,7 +7,6 @@ app = Flask(__name__)
 
 def example_handler(event: object) -> dict:
     print("Success!")
-    # breakpoint()
     return {"body": "hello!"}
 
 

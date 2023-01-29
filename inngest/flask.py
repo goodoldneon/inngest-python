@@ -1,7 +1,7 @@
 import os
 from typing import Optional
 
-from flask import current_app, request
+from flask import current_app, request, Response
 
 from .components.inngest_function import InngestFunction
 from .components.inngest_comm_handler import (
@@ -10,6 +10,7 @@ from .components.inngest_comm_handler import (
     ActionsRunResult,
     Handler,
     InngestCommHandler,
+    StepRunData,
 )
 
 
@@ -31,23 +32,28 @@ def _serve_handler(*args, **kwargs) -> Actions:
 
     def run():
         if request.method == "POST":
-            breakpoint()
+            body = request.json
+            assert body is not None
+
             return ActionsRunResult(
-                #   fn_id: req.query[queryKeys.FnId] as string,
-                #   data: req.body as Record<string, any>,
-                #   env,
-                #   isProduction,
-                #   url,
+                fn_id=body["ctx"]["fn_id"],
+                data=StepRunData(
+                    event=body["event"],
+                    steps=body["steps"],
+                ),
+                env=env,
+                is_production=False,
+                url=url,
             )
 
     def register():
         if request.method == "PUT":
-            breakpoint()
+            # breakpoint()
             return ActionsRunResult(
-                #   env,
-                #   url,
-                #   isProduction,
-                #   deployId: req.query[queryKeys.DeployId]?.toString(),
+                deploy_id=None,
+                env=env,
+                is_production=False,
+                url=url,
             )
 
     def view():
@@ -55,13 +61,13 @@ def _serve_handler(*args, **kwargs) -> Actions:
             # breakpoint()
             return ActionsRunResult(
                 env=env,
-                url=url,
                 #   isIntrospection: Object.hasOwnProperty.call(
                 #     req.query,
                 #     queryKeys.Introspect
                 #   ),
                 is_introspection=False,
                 is_production=False,
+                url=url,
             )
 
     return Actions(
@@ -71,24 +77,33 @@ def _serve_handler(*args, **kwargs) -> Actions:
     )
 
 
+def _transform_res(action_res: ActionResponse, *args, **kwargs):
+    if action_res.status == 500:
+        current_app.logger.error(action_res.body)
+
+    # if request.method == "PUT":
+    #     breakpoint()
+    #     pass
+
+    return Response(
+        headers=action_res.headers,
+        response=action_res.body,
+        status=action_res.status,
+    )
+
+
 def serve(
     name: str,
     functions: list[InngestFunction],
     options: Optional[dict] = None,
 ) -> Handler:
-    def transform_res(action_res: ActionResponse, *args, **kwargs):
-        if action_res.status == 500:
-            current_app.logger.error(action_res.body)
-
-        return action_res.body, action_res.status
-
     handler = InngestCommHandler(
         framework_name="express",
         app_name=name,
         functions=functions,
         handler=_serve_handler,
         options=options,
-        transform_res=transform_res,
+        transform_res=_transform_res,
     )
 
     return handler.create_handler()
