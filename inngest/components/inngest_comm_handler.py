@@ -11,13 +11,6 @@ from .inngest_function import InngestFunction
 version = "0.9.3"
 
 
-# @dataclasses.dataclass
-# class ActionsRunResult:
-#     data: dict
-#     env: dict
-#     fn_id: str
-
-
 @dataclasses.dataclass
 class StepRunData:
     event: dict
@@ -75,17 +68,6 @@ class RegistrationResult:
 
 
 class InngestCommHandler:
-    # _fns: dict[str, InngestFunction]
-    # _framework_name: str
-    # _handler: Handler
-    # _headers: dict[str, str]
-    # _inngest_register_url: str
-    # _is_prod: bool
-    # _name: str
-    # _serve_host: Optional[str]
-    # _serve_path: Optional[str]
-    # _signing_key: Optional[str]
-
     def __init__(
         self,
         *,
@@ -99,7 +81,6 @@ class InngestCommHandler:
         self._framework_name = framework_name
         self._handler = handler
         self._name = app_name
-        # self._fns: list[InngestFunction] = []
         self._inngest_register_url = "http://127.0.0.1:8288/fn/register"
 
         self._headers = {
@@ -126,11 +107,11 @@ class InngestCommHandler:
         return [fn.get_config(url, self._name) for fn in self._fns.values()]
 
     def create_handler(self) -> Handler:
-        def handler(*args, **kwargs):
-            actions = self._handler(*args, **kwargs)
+        def handler():
+            actions = self._handler()
             action_res = self._handle_action(actions)
 
-            return self._transform_res(action_res, *args, **kwargs)
+            return self._transform_res(action_res)
 
         return handler
 
@@ -148,10 +129,7 @@ class InngestCommHandler:
             return ActionResponse(
                 # body=encode_json({"message": step_res.body}),
                 body=encode_json({}),
-                headers={
-                    **headers,
-                    "Content-Type": "application/json"
-                },
+                headers={**headers, "Content-Type": "application/json"},
                 # status=step_res.status,
                 status=200,
             )
@@ -162,10 +140,7 @@ class InngestCommHandler:
 
             return ActionResponse(
                 body="",
-                headers={
-                    **headers,
-                    "Content-Type": "application/json"
-                },
+                headers={**headers, "Content-Type": "application/json"},
                 status=200,
             )
 
@@ -179,10 +154,7 @@ class InngestCommHandler:
             print(6)
             return ActionResponse(
                 body=encode_json({"message": registration_res.message}),
-                headers={
-                    **headers,
-                    "Content-Type": "application/json"
-                },
+                headers={**headers, "Content-Type": "application/json"},
                 status=registration_res.status,
             )
 
@@ -217,11 +189,6 @@ class InngestCommHandler:
             message="OK",
             status=response.status,
         )
-
-        # with urlopen(self._inngest_register_url, {
-
-        # }) as response:
-        #     response_content = response.read()
 
         pass
 

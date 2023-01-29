@@ -14,20 +14,8 @@ from .components.inngest_comm_handler import (
 )
 
 
-def _serve_handler(*args, **kwargs) -> Actions:
-    # print("hi")
-    # # print(request)
-    # breakpoint()
-    # return {
-    #     "env": {},
-    #     "url": "http://127.0.0.1:8080/api/inngest",
-    #     #   url,
-    #     "isIntrospection": False,
-    #     "isProduction": False,
-    # }
-
+def _serve_handler() -> Actions:
     env = {k: v for k, v in os.environ.items()}
-
     url = request.url
 
     def run():
@@ -48,7 +36,6 @@ def _serve_handler(*args, **kwargs) -> Actions:
 
     def register():
         if request.method == "PUT":
-            # breakpoint()
             return ActionsRunResult(
                 deploy_id=None,
                 env=env,
@@ -58,7 +45,6 @@ def _serve_handler(*args, **kwargs) -> Actions:
 
     def view():
         if request.method == "GET":
-            # breakpoint()
             return ActionsRunResult(
                 env=env,
                 #   isIntrospection: Object.hasOwnProperty.call(
@@ -77,13 +63,9 @@ def _serve_handler(*args, **kwargs) -> Actions:
     )
 
 
-def _transform_res(action_res: ActionResponse, *args, **kwargs):
+def _transform_res(action_res: ActionResponse):
     if action_res.status == 500:
         current_app.logger.error(action_res.body)
-
-    # if request.method == "PUT":
-    #     breakpoint()
-    #     pass
 
     return Response(
         headers=action_res.headers,
@@ -98,7 +80,7 @@ def serve(
     options: Optional[dict] = None,
 ) -> Handler:
     handler = InngestCommHandler(
-        framework_name="express",
+        framework_name="flask",
         app_name=name,
         functions=functions,
         handler=_serve_handler,
