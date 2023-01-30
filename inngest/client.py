@@ -1,19 +1,27 @@
 import json
 from datetime import datetime
 import requests
+from typing import Optional
 
 from inngest.exceptions import InngestException
 
 
 class Event:
-  def __init__(self, name=None, data=None, user=None, version=None, timestamp=None):
+  def __init__(
+    self,
+    name: Optional[str] = None,
+    data: Optional[dict] = None,
+    user: Optional[dict] = None,
+    version: Optional[str] = None,
+    timestamp: Optional[int] = None,
+  ) -> None:
     self.name = name
     self.data = data
     self.user = user
     self.version = version
     self.timestamp = timestamp if timestamp else int(datetime.now().timestamp() * 1000)
 
-  def payload(self):
+  def payload(self) -> dict:
     data = {
       'name': self.name,
       'data': self.data,
@@ -31,12 +39,16 @@ class InngestClient:
     'User-Agent': 'inngest-python-sdk/1.0.0',
   }
 
-  def __init__(self, inngest_key=None, endpoint=API_ENDPOINT):
+  def __init__(
+    self,
+    inngest_key: str,
+    endpoint: str = API_ENDPOINT,
+  ) -> None:
     self.inngest_key = inngest_key
     self.endpoint = endpoint
     self.session = requests.session()
 
-  def send(self, event):
+  def send(self, event: Event) -> requests.Response:
     validate_event(event)
     validate_inngest_key(self.inngest_key)
 
@@ -51,7 +63,7 @@ class InngestClient:
     )
 
 
-def validate_event(event):
+def validate_event(event: Event) -> None:
   if not event:
     raise InngestException("Event can't be `None`")
 
@@ -67,6 +79,6 @@ def validate_event(event):
     raise InngestException("Could not serialize data into json")
 
 
-def validate_inngest_key(inngest_key):
+def validate_inngest_key(inngest_key: str) -> None:
   if not inngest_key:
     raise InngestException("Inngest key was not specified")
